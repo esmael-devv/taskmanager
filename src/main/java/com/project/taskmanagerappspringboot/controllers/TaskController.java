@@ -4,9 +4,11 @@ import com.project.taskmanagerappspringboot.dto.CreateTaskDTO;
 import com.project.taskmanagerappspringboot.dto.ErrorResponseDTO;
 import com.project.taskmanagerappspringboot.dto.UpdateTaskDTO;
 import com.project.taskmanagerappspringboot.entities.TaskEntity;
+import com.project.taskmanagerappspringboot.service.NoteService;
 import com.project.taskmanagerappspringboot.service.TaskService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
 
 import java.text.ParseException;
 import java.util.List;
@@ -15,9 +17,12 @@ import java.util.List;
 @RequestMapping("/tasks")
 public class TaskController {
     private final TaskService taskService;
+    private final NoteService noteService;
 
-    public TaskController(TaskService taskService) {
+    public TaskController(TaskService taskService, NoteService noteService ) {
+
         this.taskService = taskService;
+        this.noteService = noteService;
     }
 
     @GetMapping("")
@@ -29,9 +34,12 @@ public class TaskController {
     @GetMapping("/{id}")
     public ResponseEntity<TaskEntity> getTaskById(@PathVariable("id") Integer id) {
         var task = taskService.getTasksById(id);
+        var notes = noteService.getNoteForTask(id);
         if(task == null) {
             return ResponseEntity.notFound().build();
         }
+        task.setNotes(notes);
+
         return ResponseEntity.ok(task);
     }
 
